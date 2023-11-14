@@ -79,5 +79,377 @@
 ![image](https://github.com/Caknoooo/Jarkom-Modul-2-A09-2023/assets/92671053/6cf86eb3-cc7c-4aca-83c9-f83ed3806652)
 
 ## Config
+- **Aura (DHCP Relay)**
+```
+auto eth0
+iface eth0 inet dhcp
+up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.173.0.0/16
+
+auto eth1
+iface eth1 inet static
+	address 192.173.1.0
+	netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet static
+	address 192.173.2.0
+	netmask 255.255.255.0
+
+auto eth3
+iface eth3 inet static
+	address 192.173.3.0
+	netmask 255.255.255.0
+
+auto eth4
+iface eth4 inet static
+	address 192.173.4.0
+	netmask 255.255.255.0
+
+```
+- **Himmel (DHCP Server)**
+```
+auto eth0
+iface eth0 inet static
+	address 192.173.1.1
+	netmask 255.255.255.0
+	gateway 192.173.1.0
+
+```
+- **Heiter (DNS Server)**
+```
+auto eth0
+iface eth0 inet static
+	address 192.173.1.2
+	netmask 255.255.255.0
+	gateway 192.173.1.0
+```
+- **Denken (Database Server)**
+```
+auto eth0
+iface eth0 inet static
+	address 192.173.2.1
+	netmask 255.255.255.0
+	gateway 192.173.2.0
+```
+- **Eisen (Load Balancer)**
+```
+auto eth0
+iface eth0 inet static
+	address 192.173.2.2
+	netmask 255.255.255.0
+	gateway 192.173.2.0
+```
+- **Frieren (Laravel Worker)**
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 9e:d5:2c:df:39:32
+```
+- **Flamme (Laravel Worker)**
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether da:cc:d9:29:59:e8
+```
+- **Fern (Laravel Worker)**
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 8a:31:c6:e6:a2:7b
+```
+- **Lawine (PHP Worker)**
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 8e:c1:16:c2:6d:4b
+```
+- **Linie (PHP Worker)**
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 7a:e7:1c:d2:ae:44
+```
+- **Lugner (PHP Worker)**
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 8a:02:fd:bb:05:be
+```
+- **Revolte, Richter, Sein, dan Stark (Client)**
+```
+auto eth0
+iface eth0 inet dhcp
+```
 
 ### Sebelum Memulai 
+setiap node, kita inisiasi pada `.bashrc` menggunakan `nano`
+
+- DNS Server
+  ```sh
+  echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+  apt-get update
+  apt-get install bind9 -y  
+  ```
+- DHCP Server
+  ```sh
+  echo 'nameserver 192.173.1.2' > /etc/resolv.conf   # Pastikan DNS Server sudah berjalan 
+  apt-get update
+  apt install isc-dhcp-server -y
+  ```
+- DHCP Relay
+  ```sh
+  apt-get update
+  apt install isc-dhcp-relay -y
+  ```
+- Database Server
+  ```sh
+  ```
+- Load Balancer
+  ```sh
+  ```
+- Worker PHP
+  ```sh
+  ```
+- Worker Laravel
+  ```sh
+  ```
+- Client
+  ```sh
+  ```
+
+## Soal 1 
+>Lakukan konfigurasi sesuai dengan peta yang sudah diberikan.
+
+Pertama kita perlu mempersiapkan konfigurasi topologi dan [setup](#sebelum-memulai) seperti aturan diatas. Selanjutnya untuk kebutuhan testing, kita perlu menambahkan register domain berupa riegel.canyon.a09.com untuk worker Laravel dan granz.channel.a09.com untuk worker PHP yang mengarah pada worker dengan IP 192.173.x.1. Karena pada konfirgurasi topologi sebelumnya seluruh worker sudah menggunakan DHCP, maka kita perlu modifikasi sedikit pada node Lugner dan Fern seperti dibawah ini
+- **Lugner (PHP Worker)**
+```
+auto eth0
+iface eth0 inet static
+	address 192.173.3.1
+	netmask 255.255.255.0
+	gateway 192.173.3.0
+```
+- **Fern (Laravel Worker)**
+```
+auto eth0
+iface eth0 inet static
+	address 192.173.4.1
+	netmask 255.255.255.0
+	gateway 192.173.4.0
+```
+
+Selanjutnya pada DNS Server (Heiter), kita perlu menjalankan command dibawah ini
+```sh
+# Temporary
+echo 'zone "riegel.canyon.a09.com" {
+    type master;
+    file "/etc/bind/sites/riegel.canyon.a09.com";
+};
+
+zone "granz.channel.a09.com" {
+    type master;
+    file "/etc/bind/sites/granz.channel.a09.com";
+};
+
+zone "1.173.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/sites/1.173.192.in-addr.arpa";
+};' > /etc/bind/named.conf.local
+
+mkdir -p /etc/bind/sites
+cp /etc/bind/db.local /etc/bind/sites/riegel.canyon.a09.com
+cp /etc/bind/db.local /etc/bind/sites/granz.channel.a09.com
+cp /etc/bind/db.local /etc/bind/sites/1.173.192.in-addr.arpa
+
+echo ';
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     riegel.canyon.a09.com. root.riegel.canyon.a09.com. (
+                        2023111401      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      riegel.canyon.a09.com.
+@       IN      A       192.173.4.1     ; IP Fern
+www     IN      CNAME   riegel.canyon.a09.com.' > /etc/bind/sites/riegel.canyon.a09.com
+
+echo '
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     granz.channel.a09.com. root.granz.channel.a09.com. (
+                        2023111401      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      granz.channel.a09.com.
+@       IN      A       192.173.3.1     ; IP Lugner
+www     IN      CNAME   granz.channel.a09.com.' > /etc/bind/sites/granz.channel.a09.com
+
+echo 'options {
+      directory "/var/cache/bind";
+
+      forwarders {
+              192.168.122.1;
+      };
+
+      // dnssec-validation auto;
+      allow-query{any;};
+      auth-nxdomain no;    # conform to RFC1035
+      listen-on-v6 { any; };
+}; ' >/etc/bind/named.conf.options
+
+service bind9 start
+```
+### Result
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/a1d913cc-ca57-4da7-ba7d-ddcbc9a2ddb8)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/0687bed4-f1dc-4409-b188-ce4c2c55c13a)
+
+## Soal 2
+>Semua CLIENT harus menggunakan konfigurasi dari DHCP Server. Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) untuk DHCP Server terlebih dahulu. Selanjutnya kita perlu menjalankan command dibawah ini pada DHCP Server
+```sh
+echo 'subnet 192.173.1.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.2.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.3.0 netmask 255.255.255.0 {
+    range 192.173.3.16 192.173.3.32;
+    range 192.173.3.64 192.173.3.80;
+    option routers 192.173.3.0;
+}' > /etc/dhcp/dhcpd.conf
+```
+
+## Soal 3 
+>Client yang melalui Switch4 mendapatkan range IP dari [prefix IP].4.12 - [prefix IP].4.20 dan [prefix IP].4.160 - [prefix IP].4.168
+
+Selanjutnya kita perlu menambahkan beberapa konfigurasi baru untuk switch4 dengan menjalankan command dibawah ini
+```sh
+echo 'subnet 192.173.1.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.2.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.3.0 netmask 255.255.255.0 {
+    range 192.173.3.16 192.173.3.32;
+    range 192.173.3.64 192.173.3.80;
+    option routers 192.173.3.0;
+}
+
+subnet 192.173.4.0 netmask 255.255.255.0 {
+    range 192.173.4.12 192.173.4.20;
+    range 192.173.4.160 192.173.4.168;
+    option routers 192.173.4.0;
+} ' > /etc/dhcp/dhcpd.conf
+```
+
+## Soal 4 
+>Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut
+
+kita akan menambahkan beberapa konfigurasi dengan command berikut ini
+```sh
+echo 'subnet 192.173.1.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.2.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.3.0 netmask 255.255.255.0 {
+    range 192.173.3.16 192.173.3.32;
+    range 192.173.3.64 192.173.3.80;
+    option routers 192.173.3.0;
+    option broadcast-address 192.173.3.255;
+    option domain-name-servers 192.173.1.2;
+}
+
+subnet 192.173.4.0 netmask 255.255.255.0 {
+    range 192.173.4.12 192.173.4.20;
+    range 192.173.4.160 192.173.4.168;
+    option routers 192.173.4.0;
+    option broadcast-address 192.173.4.255;
+    option domain-name-servers 192.173.1.2;
+} ' > /etc/dhcp/dhcpd.conf
+
+service isc-dhcp-server start
+```
+
+Selanjutnya kita perlu untuk melakukan [setup](#sebelum-memulai) untuk DHCP Relay terlebih dahulu. Selanjutnya kita perlu menjalankan command dibawah ini pada DHCP Relay
+```sh
+echo '# Defaults for isc-dhcp-relay initscript
+# sourced by /etc/init.d/isc-dhcp-relay
+# installed at /etc/default/isc-dhcp-relay by the maintainer scripts
+
+#
+# This is a POSIX shell fragment
+#
+
+# What servers should the DHCP relay forward requests to?
+SERVERS="192.173.1.1"
+
+# On what interfaces should the DHCP relay (dhrelay) serve DHCP requests?
+INTERFACES="eth1 eth2 eth3 eth4"
+
+# Additional options that are passed to the DHCP relay daemon?
+OPTIONS=""' > /etc/default/isc-dhcp-relay
+
+# config secara manual pada /etc/sysctl.conf juga untuk enable ip4 forwarding (uncomen syntax forwarding)
+net.ipv4.ip_forward=1
+
+service isc-dhcp-relay start 
+```
+Terakhir jangan lupa untuk restart seluruh client agar dapat melakukan leasing IP dari DHCP Server
+
+### Result
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/aef2db26-cbfe-4ab8-ab15-2edc200db28e)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/a0bf3231-515a-4458-8066-930b82bde56d)
+
+
+## Soal 5
+>Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit
+
+Selanjutnya kita perlu menambahkan beberapa konfigurasi baru untuk mengatur leasing time pada switch3 dan switch4 sesuai dengan aturan soal. Kita dapat menjalankan command berikut pada DHCP Server
+```sh
+echo 'subnet 192.173.1.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.2.0 netmask 255.255.255.0 {
+}
+
+subnet 192.173.3.0 netmask 255.255.255.0 {
+    range 192.173.3.16 192.173.3.32;
+    range 192.173.3.64 192.173.3.80;
+    option routers 192.173.3.0;
+    option broadcast-address 192.173.3.255;
+    option domain-name-servers 192.173.1.2;
+    default-lease-time 180;
+    max-lease-time 5760;
+}
+
+subnet 192.173.4.0 netmask 255.255.255.0 {
+    range 192.173.4.12 192.173.4.20;
+    range 192.173.4.160 192.173.4.168;
+    option routers 192.173.4.0;
+    option broadcast-address 192.173.4.255;
+    option domain-name-servers 192.173.1.2;
+    default-lease-time 720;
+    max-lease-time 5760;
+}
+
+service isc-dhcp-server restart
+```
+### Result
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/501ff778-5836-4528-a07b-079b3d48d6f9)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/d69c7a22-2752-4e6b-8539-23d39303ca4d)
+
+
+
+
