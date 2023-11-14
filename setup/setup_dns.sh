@@ -65,7 +65,7 @@ $TTL    604800
                          604800 )       ; Negative Cache TTL
 ;
 @       IN      NS      riegel.canyon.a09.com.
-2       IN      PTR     riegel.canyon.a09.com.' > /etc/bind/sites/1.173.192.in-addr.arpa
+1       IN      PTR     riegel.canyon.a09.com.' > /etc/bind/sites/1.173.192.in-addr.arpa
 
 echo 'options {
       directory "/var/cache/bind";
