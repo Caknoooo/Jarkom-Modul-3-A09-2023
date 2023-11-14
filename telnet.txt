@@ -1,0 +1,15 @@
+telnet 192.168.77.128 5002 (Aura) -> (Router) Dhcp Relay
+telnet 192.168.77.128 5016 (Himmel) -> DHCP Server
+telnet 192.168.77.128 5018 (Helter) -> DNS Server
+telnet 192.168.77.128 5020 (Denken) -> Database Server
+telnet 192.168.77.128 5022 (Eiken) -> Load Balancer
+telnet 192.168.77.128 5028 (Lawine) -> PHP Worker
+telnet 192.168.77.128 5030 (Linie) -> PHP Worker
+telnet 192.168.77.128 5034 (Lugner) -> PHP Worker
+telnet 192.168.77.128 5009 (Frieren) -> Laravel Worker 
+telnet 192.168.77.128 5011 (Flamme) -> Laravel Worker
+telnet 192.168.77.128 5031 (Fern) -> Laravel Worker
+telnet 192.168.77.128 5007 (Sein) -> Client
+telnet 192.168.77.128 5013 (Stark) -> Client 
+telnet 192.168.77.128 5023 (Revolte) -> Client
+telnet 192.168.77.128 5025 (Richter) -> Client
