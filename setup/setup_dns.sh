@@ -35,7 +35,7 @@ $TTL    604800
                          604800 )       ; Negative Cache TTL
 ;
 @       IN      NS      riegel.canyon.a09.com.
-@       IN      A       192.173.2.3     ; IP LB Eiken
+@       IN      A       192.173.2.2     ; IP LB Eiken
 www     IN      CNAME   riegel.canyon.a09.com.' > /etc/bind/sites/riegel.canyon.a09.com
 
 echo '
@@ -50,7 +50,7 @@ $TTL    604800
                          604800 )       ; Negative Cache TTL
 ;
 @       IN      NS      granz.channel.a09.com.
-@       IN      A       192.173.2.3     ; IP LB Eiken
+@       IN      A       192.173.2.2     ; IP LB Eiken
 www     IN      CNAME   granz.channel.a09.com.' > /etc/bind/sites/granz.channel.a09.com
 
 echo '
