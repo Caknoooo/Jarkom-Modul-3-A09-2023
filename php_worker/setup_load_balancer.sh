@@ -58,13 +58,10 @@ echo 'upstream worker {
 
 server {
     listen 80;
-    server_name _;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
 
     root /var/www/html;
-
     index index.html index.htm index.nginx-debian.html;
-
-    server_name _;
 
     location / {
         proxy_pass http://worker;
@@ -94,19 +91,16 @@ echo 'upstream worker {
 
 server {
     listen 80;
-    server_name _;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
 
     root /var/www/html;
-
     index index.html index.htm index.nginx-debian.html;
-
-    server_name _;
 
     location / {
         allow 192.173.3.69;
         allow 192.173.3.70;
         allow 192.173.4.167;
-        allow 192.173.3.168;
+        allow 192.173.4.168;
         deny all;
         proxy_pass http://worker;
     }

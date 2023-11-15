@@ -44,10 +44,10 @@
   - [Result](#result-7)
 - [Soal 11](#Soal-11)
   - [Script](#script-10)
-  - [Result](#result-10)
+  - [Result](#result-8)
 - [Soal 12](#Soal-12)
   - [Script](#script-11)
-  - [Result](#result-11)
+  - [Result](#result-9)
 - [Soal 13](#Soal-13)
   - [Script](#script-12)
   - [Result](#result-12)
@@ -375,7 +375,9 @@ echo 'options {
 service bind9 start
 ```
 ### Result
+
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/a1d913cc-ca57-4da7-ba7d-ddcbc9a2ddb8)
+
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/0687bed4-f1dc-4409-b188-ce4c2c55c13a)
 
 ## Soal 2
@@ -498,7 +500,9 @@ Lalu pada file ``/etc/sysctl.conf`` lakukan uncommented pada ``net.ipv4.ip_forwa
 Terakhir jangan lupa untuk restart seluruh client agar dapat melakukan leasing IP dari DHCP Server
 
 ### Result
+
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/aef2db26-cbfe-4ab8-ab15-2edc200db28e)
+
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/a0bf3231-515a-4458-8066-930b82bde56d)
 
 
@@ -542,7 +546,9 @@ subnet 192.173.4.0 netmask 255.255.255.0 {
 service isc-dhcp-server restart
 ```
 ### Result
+
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/501ff778-5836-4528-a07b-079b3d48d6f9)
+
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/d69c7a22-2752-4e6b-8539-23d39303ca4d)
 
 ## Soal 6
@@ -694,18 +700,23 @@ ab -n 200 -c 10 http://www.granz.channel.a09.com/
 ### Result 
 
 **Round Robin**
+
 ![Screenshot (1015)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/24ed0a1b-11a5-4aea-aed2-6ea179e6b477)
 
 **Least-connection**
+
 ![Screenshot (1019)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/eabe0ec0-d215-465d-8096-31473dc7c962)
 
 **IP Hash**
+
 ![Screenshot (1020)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/4f03715c-7da8-470a-87b1-7763c489ec78)
 
 **Generic Hash**
+
 ![Screenshot (1021)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/37b8d309-9917-4275-a441-2ca838fcb6b7)
 
 **Grafik**
+
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/5551618b-fb27-4028-915d-f5beff5616d3)
 
 ## Soal 9
@@ -720,6 +731,7 @@ ab -n 200 -c 10 http://www.granz.channel.a09.com/
 ```
 
 ### Result
+
 **3 Worker**
 
 ![Screenshot (1022)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/a05e2b8f-6a98-4283-9c1a-581a1f7c2811)
@@ -727,16 +739,19 @@ ab -n 200 -c 10 http://www.granz.channel.a09.com/
 > Request per second 303.87 [#/sec] (mean)
 
 **2 Worker**
+
 ![Screenshot (1023)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/9d4dc1ba-9a8a-4203-9ed8-a201e2b488be)
 
 > Request per second 336.77 [#/sec] (mean)
 
 ** 1 Worker**
+
 ![Screenshot (1024)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/bd9eab33-0d57-4244-a544-810e6910823b)
 
 > Request per second 393.40 [#/sec] (mean)
 
 **Grafik**
+
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/48104721-c2a1-4cd5-860b-f40a8f253a47)
 
 ## Soal 10
@@ -771,3 +786,143 @@ Jadi, ketika kita mengakses kembali url ``http://www.granz.channel.a09.com/`` ak
 **Setelah berhasil Autentikasi**
 
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/05e43a73-f45e-41a4-bc7c-9755a18da84c)
+
+## Soal 11
+> Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id. (11) hint: (proxy_pass)
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu, lakukan beberapa konfigurasi tambahan pada nginx sebagai berikut 
+
+### Script
+```sh
+location /its {
+    proxy_pass https://www.its.ac.id;
+    proxy_set_header Host www.its.ac.id;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+Berikut adalah full scriptnya 
+```sh
+echo 'upstream worker {
+    server 192.173.3.1;
+    server 192.173.3.2;
+    server 192.173.3.3;
+}
+
+server {
+    listen 80;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    location / {
+        proxy_pass http://worker;
+    }
+
+    location /its {
+        proxy_pass https://www.its.ac.id;
+        proxy_set_header Host www.its.ac.id;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}' > /etc/nginx/sites-available/lb_php
+```
+
+Maksudnya adalah ketika kita melakukan akses pada endpoint yang mengandung ``/its`` akan diarahkan oleh ``proxy_pass`` menuju ``https://www.its.ac.id``. Jadi ketika melakukan testing pada client ``Revolte`` dengan menggunakan perintah berikut 
+
+```sh
+lynx www.granz.channel.a09.com/its
+```
+
+### Result
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/c1cedf3f-0eda-42c1-9b37-9dd82b614345)
+
+## Soal 12
+> Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].3.69, [Prefix IP].3.70, [Prefix IP].4.167, dan [Prefix IP].4.168. 
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu, Kami hanya menambahkan beberapa konfigurasi di nginx sebagai berikut 
+
+```sh
+location / {
+    allow 192.173.3.69;
+    allow 192.173.3.70;
+    allow 192.173.4.167;
+    allow 192.173.4.168;
+    deny all;
+    proxy_pass http://worker;
+}
+```
+
+Berikut adalah full scriptnya
+```sh
+echo 'upstream worker {
+    server 192.173.3.1;
+    server 192.173.3.2;
+    server 192.173.3.3;
+}
+
+server {
+    listen 80;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
+
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+
+    location / {
+        allow 192.173.3.69;
+        allow 192.173.3.70;
+        allow 192.173.4.167;
+        allow 192.173.4.168;
+        deny all;
+        proxy_pass http://worker;
+    }
+
+    location /its {
+        proxy_pass https://www.its.ac.id;
+        proxy_set_header Host www.its.ac.id;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}' > /etc/nginx/sites-available/lb_php
+```
+
+Disini kami hanya mengizinkan beberapa ``IP`` saja sesuai dengan ketentual soal dan kamu menolak seluruh ``IP`` selain yang telah ditentukan soal. Untuk melakukan testingnya. Bisa dilakukan dengan membuka client yang mendapatkan ``IP 192.173.3.69 atau 192.173.3.70 atau 192.173.4.167 atau 192.173.4.168``
+
+### Result 
+
+**IP Deny**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/bc177f35-a148-4328-b99e-0f236d984260)
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/a091d850-759b-4bdd-b02f-f2ca81fef387)
+
+**IP Allow**
+
+Karena IP yang diberikan random, sekarang kami akan melakukan tambahan allow pada ``IP 192.173.3.19`` pada konfigurasi sebelumnya
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/bc177f35-a148-4328-b99e-0f236d984260)
+
+```sh
+location / {
+    allow 192.173.3.69;
+    allow 192.173.3.70;
+    allow 192.173.3.19;
+    allow 192.173.4.167;
+    allow 192.173.4.168;
+    deny all;
+    proxy_pass http://worker;
+}
+```
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/f792f249-a13a-4891-9850-09471b861447)
+
+## Soal 13
+> Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern. (13)
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu.
