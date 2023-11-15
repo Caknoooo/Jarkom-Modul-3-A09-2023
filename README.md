@@ -847,6 +847,8 @@ lynx www.granz.channel.a09.com/its
 
 Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu, Kami hanya menambahkan beberapa konfigurasi di nginx sebagai berikut 
 
+### Script
+
 ```sh
 location / {
     allow 192.173.3.69;
