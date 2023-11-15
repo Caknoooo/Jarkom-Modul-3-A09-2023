@@ -50,10 +50,10 @@
   - [Result](#result-9)
 - [Soal 13](#Soal-13)
   - [Script](#script-12)
-  - [Result](#result-12)
+  - [Result](#result-10)
 - [Soal 14](#Soal-14)
   - [Script](#script-13)
-  - [Result](#result-13)
+  - [Result](#result-11)
 - [Soal 15](#Soal-15)
   - [Script](#script-14)
   - [Result](#result-14)
@@ -744,7 +744,7 @@ ab -n 200 -c 10 http://www.granz.channel.a09.com/
 
 > Request per second 336.77 [#/sec] (mean)
 
-** 1 Worker**
+**1 Worker**
 
 ![Screenshot (1024)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/bd9eab33-0d57-4244-a544-810e6910823b)
 
@@ -925,4 +925,203 @@ location / {
 ## Soal 13
 > Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern. (13)
 
-Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu.
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu kita buka ``Database Server`` nya yaitu ``Denken`` dan lakukan konfigurasi sebagai berikut
+
+### Script
+```sh
+# Db akan diakses oleh 3 worker, maka 
+echo '# This group is read both by the client and the server
+# use it for options that affect everything
+[client-server]
+
+# Import all .cnf files from configuration directory
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mariadb.conf.d/
+
+# Options affecting the MySQL server (mysqld)
+[mysqld]
+skip-networking=0
+skip-bind-address
+' > /etc/mysql/my.cnf
+```
+
+Lalu jangan lupa untuk mengganti ``[bind-address]`` pada file ``/etc/mysql/mariadb.conf.d/50-server.cnf`` menjadi ``0.0.0.0`` 
+
+```sh 
+cd /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Changes
+bind-address            = 0.0.0.0
+```
+
+Jangan lupa untuk restart mysql nya ``service mysql restart``
+
+Setelah itu jalankan perintah berikut: 
+
+```sh
+mysql -u root -p
+Enter password: 
+
+CREATE USER 'kelompoka09'@'%' IDENTIFIED BY 'passworda09';
+CREATE USER 'kelompoka09'@'localhost' IDENTIFIED BY 'passworda09';
+CREATE DATABASE dbkelompoka09;
+GRANT ALL PRIVILEGES ON *.* TO 'kelompoka09'@'%';
+GRANT ALL PRIVILEGES ON *.* TO 'kelompoka09'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/dad18b05-ea3e-452e-8440-a45354143157)
+
+### Result
+Setelah itu lakukan pengecekan di salah satu Laravel Worker. Disini kami akan melakukan pengecekan pada worker ``Fern`` dengan melakukan perintah ``shell`` berikut
+
+```sh
+mariadb --host=192.173.2.1 --port=3306 --user=kelompoka09 --password=passworda09 dbkelompoka09 -e "SHOW DATABASES;"
+```
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/6f75d17d-e078-442b-bee0-b5082e441fc3)
+
+## Soal 14
+> Frieren, Flamme, dan Fern memiliki Granz Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer 
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu, lakukan konfigurasi lagi sebagai berikut
+
+### Script
+Lakukan install composer
+
+```sh
+wget https://getcomposer.org/download/2.0.13/composer.phar
+chmod +x composer.phar
+mv composer.phar /usr/local/bin/composer
+```
+
+Setelah itu install ``git`` dan lakukan cloning terhadap [resource](https://github.com/martuafernando/laravel-praktikum-jarkom) yang telah diberikan 
+
+```sh
+apt-get install git -y
+cd /var/www && git clone https://github.com/martuafernando/laravel-praktikum-jarkom
+cd /var/www/laravel-praktikum-jarkom && composer update
+```
+
+Setelah melakukan ``clone`` pada resource tersebut. Sekarang lakukan konfigurasi sebagai berikut pada masing-masing ``worker``
+
+```sh 
+cd /var/www/laravel-praktikum-jarkom && cp .env.example .env
+echo 'APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=192.173.2.1
+DB_PORT=3306
+DB_DATABASE=dbkelompoka09
+DB_USERNAME=kelompoka09
+DB_PASSWORD=passworda09
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
+
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_HOST="${PUSHER_HOST}"
+VITE_PUSHER_PORT="${PUSHER_PORT}"
+VITE_PUSHER_SCHEME="${PUSHER_SCHEME}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"' > /var/www/laravel-praktikum-jarkom/.env
+cd /var/www/laravel-praktikum-jarkom && php artisan key:generate
+cd /var/www/laravel-praktikum-jarkom && php artisan config:cache
+cd /var/www/laravel-praktikum-jarkom && php artisan migrate
+cd /var/www/laravel-praktikum-jarkom && php artisan db:seed
+cd /var/www/laravel-praktikum-jarkom && php artisan storage:link
+cd /var/www/laravel-praktikum-jarkom && php artisan jwt:secret
+cd /var/www/laravel-praktikum-jarkom && php artisan config:clear
+chown -R www-data.www-data /var/www/laravel-praktikum-jarkom/storage
+```
+
+Setelah berhasil menjalankan semuanya dan tidak mendapatkan ``error``. Sekarang lakukan konfigurasi ``nginx`` sebagai berikut pada masing-masing worker dimana port nya adalah sebagai berikut 
+
+```sh
+192.173.4.1:8001; # Fern 
+192.173.4.2:8002; # Flamme
+192.173.4.3:8003; # Frieren
+```
+
+dan berikut merupakan konfigurasi ``nginx`` nya
+
+```sh
+echo 'server {
+    listen <X>;
+
+    root /var/www/laravel-praktikum-jarkom/public;
+
+    index index.php index.html index.htm;
+    server_name _;
+
+    location / {
+            try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # pass PHP scripts to FastCGI server
+    location ~ \.php$ {
+      include snippets/fastcgi-php.conf;
+      fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
+    }
+
+    location ~ /\.ht {
+            deny all;
+    }
+
+    error_log /var/log/nginx/implementasi_error.log;
+    access_log /var/log/nginx/implementasi_access.log;
+}' > /etc/nginx/sites-available/laravel-worker
+```
+
+dimana ``<X>`` merupakan port masing-masing Worker.
+
+
+### Result
+Setelah berhasil melakukan keseluruhan konfigurasi pada masing-masing ``worker``. Saatnya melakukan testing sebagai berikut
+
+```sh
+lynx localhost:[PORT]
+```
+dimana PORT yang ada adalah ``8001`` ``8002`` dan ``8003``. Sesuaikan dengan setup nginx sebelumnya.
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/931d4075-3b54-43fc-86d2-e392876d42a9)
