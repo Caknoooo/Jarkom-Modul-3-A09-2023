@@ -67,7 +67,7 @@ server {
         proxy_pass http://worker;
     }
 
-    location /its {
+    location ~ /its {
         proxy_pass https://www.its.ac.id;
         proxy_set_header Host www.its.ac.id;
         proxy_set_header X-Real-IP $remote_addr;
@@ -105,7 +105,7 @@ server {
         proxy_pass http://worker;
     }
 
-    location /its {
+    location ~ /its {
         proxy_pass https://www.its.ac.id;
         proxy_set_header Host www.its.ac.id;
         proxy_set_header X-Real-IP $remote_addr;

@@ -132,3 +132,120 @@ curl -X POST -H "Content-Type: application/json" -d '{"username": "Caknoox", "pa
 
 #GET /me (17)
 curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDMvYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE3MDAwMDg4NjUsImV4cCI6MTcwMDAxMjQ2NSwibmJmIjoxNzAwMDA4ODY1LCJqdGkiOiJ4SmVoYkhpYU1Zd3lzWUlFIiwic3ViIjoiNCIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.Sj-Lr8QzwsqcCLrkTVY1RjS9OJWKpGkguEa2AW5MLbU" localhost:8003/api/me
+
+# NO 19
+# Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan 
+# - pm.max_children
+# - pm.start_servers
+# - pm.min_spare_servers
+# - pm.max_spare_servers
+# sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.(19)
+
+# Setup Awal
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+
+# Percobaan 1
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 25
+pm.start_servers = 5
+pm.min_spare_servers = 3
+pm.max_spare_servers = 10' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+
+# Percobaan 2
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 50
+pm.start_servers = 8
+pm.min_spare_servers = 5
+pm.max_spare_servers = 15' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+
+# Percobaan 3
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 75
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 20' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+
+# Setup nginx 
+echo 'server {
+    listen 8002;
+
+    root /var/www/laravel-praktikum-jarkom/public;
+
+    index index.php index.html index.htm;
+    server_name _;
+
+    location / {
+            try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # pass PHP scripts to FastCGI server
+    location ~ \.php$ {
+      include snippets/fastcgi-php.conf;
+      fastcgi_pass unix:/run/php/php8.0-fpm-laravel-worker.sock;
+    }
+
+    location ~ /\.ht {
+            deny all;
+    }
+
+    error_log /var/log/nginx/implementasi_error.log;
+    access_log /var/log/nginx/implementasi_access.log;
+}' > /etc/nginx/sites-available/laravel-worker
+
+service nginx restart

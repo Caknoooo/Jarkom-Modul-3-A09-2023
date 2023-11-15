@@ -794,7 +794,7 @@ Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dah
 
 ### Script
 ```sh
-location /its {
+location ~ /its {
     proxy_pass https://www.its.ac.id;
     proxy_set_header Host www.its.ac.id;
     proxy_set_header X-Real-IP $remote_addr;
@@ -822,7 +822,7 @@ server {
         proxy_pass http://worker;
     }
 
-    location /its {
+    location ~ /its {
         proxy_pass https://www.its.ac.id;
         proxy_set_header Host www.its.ac.id;
         proxy_set_header X-Real-IP $remote_addr;
@@ -1218,22 +1218,227 @@ Terdapat error dalam pengiriman sebanyak 100 request. Karena satu worker saja ti
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/c58c1181-e387-476b-a0ef-ffdbe5278614)
 
 ## Soal 18
-> Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Granz Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern. (18)
+> Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Granz Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern. 
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu, karena hanya diberikan perintah ketiga ``worker`` berjalan secara adil, kami memberikan implementasi dari ``Load Balancing`` karena sesuai dengan definisi nya yaitu membagi rata beban kerja. Maka dari itu, berikut merupakan konfigurasi ``nginx``
 
 ### Script
+```sh
+echo 'upstream worker {
+    server 192.173.4.1:8001;
+    server 192.173.4.2:8002;
+    server 192.173.4.3:8003;
+}
+
+server {
+    listen 80;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
+
+    location / {
+        proxy_pass http://worker;
+    }
+} 
+' > /etc/nginx/sites-available/laravel-worker
+
+ln -s /etc/nginx/sites-available/laravel-worker /etc/nginx/sites-enabled/laravel-worker
+
+service nginx restart
+```
+
+**Notes**
+Hati-hati ``port`` tabrakan dengan ``load balancer`` dari ``php worker`` 
 
 ### Result
+Setelah melakukan konfigurasi pada ``load balancer`` pada ``Eisen``. Sekarang waktunya melakukan testing pada client ``Revolte`` dengan menjalankan perintah berikut 
+
+```sh
+ab -n 100 -c 10 -p login.json -T application/json http://www.granz.channel.a09.com/api/auth/login
+```
+
+akan memperoleh hasil sebagai berikut 
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/e490249c-fd50-4849-89d6-57410e0fe424)
+
+**Fern**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/6c42fb62-4604-4b98-8ee6-37e4ed29b980)
+
+**Flamme**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/c86dcd29-6adb-4263-8054-8ec069b6cabf)
+
+**Frieren**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/9c85cdfb-0179-4cd7-8c51-ba5fcd9f2859)
 
 ## Soal 19
 > Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan -> pm.max_children, pm.start_servers, pm.min_spare_servers, pm.max_spare_servers sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.
 
+Untuk mengerjakan soal ini terdapat beberapa penjelasan sebagai berikut 
+
+**pm.max_children** 
+Menentukan jumlah maksimum pekerja PHP (proses anak) yang dapat berjalan secara bersamaan. Nilai ini sebaiknya disesuaikan dengan kapasitas sumber daya server. Jika terlalu rendah, server mungkin tidak dapat menangani banyak permintaan secara bersamaan, sementara jika terlalu tinggi, dapat menyebabkan kelebihan beban dan kekurangan sumber daya.
+
+**pm.start_servers**
+Menentukan jumlah pekerja PHP yang akan dimulai secara otomatis ketika PHP-FPM pertama kali dijalankan atau direstart. Ini membantu dalam mengoptimalkan performa pada saat server pertama kali dimulai.
+
+**pm.min_spare_servers**
+Menentukan jumlah minimum pekerja PHP yang tetap berjalan saat server berjalan. Ini membantu menjaga agar server tetap responsif terhadap permintaan bahkan saat lalu lintas rendah.
+
+**pm.max_spare_servers** Menentukan jumlah maksimum pekerja PHP yang dapat berjalan tetapi tidak menangani permintaan. Jumlah ini disesuaikan dengan kebutuhan untuk menangani lonjakan lalu lintas tanpa menambahkan terlalu banyak sumber daya ketika beban rendah.
+
+Akan ada 4 konfigurasi terhadap proses ``package manager`` pada masing-masing worker yang nantinya akan dilakukan untuk testing.
+
 ### Script
 
+**Script 1**
+```sh
+# Setup Awal
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+```
+
+**Script 2**
+```sh
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 25
+pm.start_servers = 5
+pm.min_spare_servers = 3
+pm.max_spare_servers = 10' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+```
+
+**Script 3**
+```sh
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 50
+pm.start_servers = 8
+pm.min_spare_servers = 5
+pm.max_spare_servers = 15' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+```
+
+**Script 4**
+```sh
+echo '[www]
+user = www-data
+group = www-data
+listen = /run/php/php8.0-fpm.sock
+listen.owner = www-data
+listen.group = www-data
+php_admin_value[disable_functions] = exec,passthru,shell_exec,system
+php_admin_flag[allow_url_fopen] = off
+
+; Choose how the process manager will control the number of child processes.
+
+pm = dynamic
+pm.max_children = 75
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 20' > /etc/php/8.0/fpm/pool.d/www.conf
+
+service php8.0-fpm restart
+```
+
 ### Result
+
+**Script 1**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/f9f3a702-c699-487b-922e-4bdc9cf0f8c9)
+
+**Script 2**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/6550d9fa-6bef-44d7-acf6-84f9d92446b6)
+
+**Script 3**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/1353febe-e4fa-4f5c-82b8-7046d29886fd)
+
+**Script 4**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/eb2fa242-2eb2-4580-ba64-dc296985cbf3)
 
 ## Soal 20
 > Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second. (20)
 
+Karena proses yang telah di ``konfigurasi`` sebelumnya pada masing-masing worker tepatnya pada ``package manager`` dan ternyata hasil yang diberikan juga tidak cukup untuk meningkatkan performa ``worker``. Oleh karena itu, ditambahkan ``algoritma`` pada ``load balancer`` tersebut dengan menggunakan ``Least-connection`` dimana algoritma ini akan melakukan prioritas pembagian dari beban kinerja yang paling rendah. Node master akan mencatat semua beban dan kinerja dari semua node, dan akan melakukan prioritas dari beban yang paling rendah. Sehingga diharapkan tidak ada server dengan beban yang rendah.
+
 ### Script
+```sh
+echo 'upstream worker {
+    least_conn;
+    server 192.173.4.1:8001;
+    server 192.173.4.2:8002;
+    server 192.173.4.3:8003;
+}
+
+server {
+    listen 80;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
+
+    location / {
+        proxy_pass http://worker;
+    }
+} 
+' > /etc/nginx/sites-available/laravel-worker
+
+service nginx restart
+```
+
+**Notes** 
+Disini kami masih menggunakan ``setup`` pada ``package manager`` sebagai berikut 
+
+```sh
+pm = dynamic
+pm.max_children = 75
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 20
+```
 
 ### Result
+Jika ditambahkan Algoritma ``Load Balancing Least-connection``. Hasil yang didapatkan cukup ``signifikan`` sebagai berikut 
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/76a9467a-e5e9-49b4-9ccd-0be823e29550)
+
+Dapat disimpulkan bahwa algoritma ``Least-connection`` dapat berkerja dengan baik
