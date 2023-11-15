@@ -22,7 +22,7 @@ rm /etc/nginx/sites-enabled/default
 
 echo 'server {
     listen 80;
-    server_name granz.channel.a09.com www.granz.channel.a09.com;
+    server_name _;
 
     root /var/www/granz.channel.a09.com;
     index index.php index.html index.htm;

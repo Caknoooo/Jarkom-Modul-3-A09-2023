@@ -3,6 +3,7 @@ echo 'nameserver 192.173.1.2' > /etc/resolv.conf
 apt-get update
 apt-get install nginx -y
 apt-get install lynx -y
+apt-get install apache2-utils -y
 service nginx start
 
 cp /etc/nginx/sites-available/default /etc/nginx/sites-available/lb_php
@@ -15,7 +16,7 @@ echo ' upstream worker {
 
 server {
     listen 80;
-    server_name _;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
 
     root /var/www/html;
 
@@ -39,9 +40,9 @@ service nginx restart
 # 10
 # Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/ (10)
 # yyy is a09
-apt-get install apache2-utils -y
 mkdir /etc/nginx/rahasisakita
 htpasswd -c /etc/nginx/rahasisakita/htpasswd netics
+
 # testing password
 # Tambahkan di salah satu location -> Lalu buka url yang dituju localtion tsb
 auth_basic "Restricted Content";

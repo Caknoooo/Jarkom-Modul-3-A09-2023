@@ -23,25 +23,25 @@
   - [Script](#script-2)
 - [Soal 4](#Soal-4)
   - [Script](#script-3)
-  - [Result](#result-2)
+  - [Result](#result-1)
 - [Soal 5](#Soal-5)
   - [Script](#script-4)
-  - [Result](#result-3)
+  - [Result](#result-2)
 - [Soal 6](#Soal-6)
   - [Script](#script-5)
-  - [Result](#result-5)
+  - [Result](#result-3)
 - [Soal 7](#Soal-7)
   - [Script](#script-6)
-  - [Result](#result-6)
+  - [Result](#result-4)
 - [Soal 8](#Soal-8)
   - [Script](#script-7)
-  - [Result](#result-7)
+  - [Result](#result-5)
 - [Soal 9](#Soal-9)
   - [Script](#script-8)
-  - [Result](#result-8)
+  - [Result](#result-6)
 - [Soal 10](#Soal-10)
   - [Script](#script-9)
-  - [Result](#result-9)
+  - [Result](#result-7)
 - [Soal 11](#Soal-11)
   - [Script](#script-10)
   - [Result](#result-10)
@@ -236,6 +236,7 @@ setiap node, kita inisiasi pada `.bashrc` menggunakan `nano`
   ```sh
   echo 'nameserver 192.173.1.2' > /etc/resolv.conf
   apt-get update
+  apt-get install apache2-utils -y
   apt-get install nginx -y
   apt-get install lynx -y
 
@@ -543,3 +544,194 @@ service isc-dhcp-server restart
 ### Result
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/501ff778-5836-4528-a07b-079b3d48d6f9)
 ![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/d69c7a22-2752-4e6b-8539-23d39303ca4d)
+
+## Soal 6
+> Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3. (6)
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu pada **seluruh PHP Worker**. Jika sudah, silahkan untuk melakukan konfigurasi tambahan sebagai berikut untuk melakukan download dan unzip menggunakan command ``wget``
+```sh
+wget -O '/var/www/granz.channel.a09.com' 'https://drive.google.com/u/0/uc?id=1ViSkRq7SmwZgdK64eRbr5Fm1EGCTPrU1&export=download'
+unzip -o /var/www/granz.channel.a09.com -d /var/www/
+rm /var/www/granz.channel.a09.com
+mv /var/www/modul-3 /var/www/granz.channel.a09.com
+```
+
+### Script
+Setelah melakukan download dan unzip. Sekarang kita bisa melakukan konfigurasi pada ``nginx`` sebagai berikut:
+```sh 
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/granz.channel.a09.com
+ln -s /etc/nginx/sites-available/granz.channel.a09.com /etc/nginx/sites-enabled/
+rm /etc/nginx/sites-enabled/default
+
+echo 'server {
+    listen 80;
+    server_name _;
+
+    root /var/www/granz.channel.a09.com;
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.3-fpm.sock;  # Sesuaikan versi PHP dan socket
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}' > /etc/nginx/sites-available/granz.channel.a09.com
+
+service nginx restart
+```
+
+### Result 
+Jalanin Perintah ``lynx localhost`` pada masing-masing worker dan hasilnya akan sebagai berikut:
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/9acf27de-5b19-46d5-b1f5-6e145072992a)
+
+## Soal 7
+> Kepala suku dari Bredt Region memberikan resource server sebagai berikut: Lawine, 4GB, 2vCPU, dan 80 GB SSD. Linie, 2GB, 2vCPU, dan 50 GB SSD. Lugner 1GB, 1vCPU, dan 25 GB SSD. Aturlah agar Eisen dapat bekerja dengan maksimal, lalu lakukan testing dengan 1000 request dan 100 request/second. (7)
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah melakukan konfigurasi diatas, sekarang lakukan konfigurasi ``Load Balancing`` pada node ``Eisen`` sebagai berikut 
+
+### Script
+```sh 
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/lb_php
+
+echo ' upstream worker {
+    server 192.173.3.1;
+    server 192.173.3.2;
+    server 192.173.3.3;
+}
+
+server {
+    listen 80;
+    server_name granz.channel.a09.com www.granz.channel.a09.com;
+
+    root /var/www/html;
+
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        proxy_pass http://worker;
+    }
+} ' > /etc/nginx/sites-available/lb_php
+
+ln -s /etc/nginx/sites-available/lb_php /etc/nginx/sites-enabled/
+rm /etc/nginx/sites-enabled/default
+
+service nginx restart
+```
+
+Setelah itu lakukan [konfigurasi](#sebelum-memulai) pada salah satu client. Disini kami melakukan konfigurasi pada client ``Revolte``
+
+### Result
+Jalankan perintah berikut pada client ``Revolte``
+```sh
+ab -n 1000 -c 100 http://www.granz.channel.a09.com/ 
+```
+
+dan akan mendapatkan hasil seperti berikut 
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/024a3bca-87d7-4fc5-a94f-0d345f8c3c90)
+
+dan waktu yang dihasilkan adalah  ``Requests per second:    269.06 [#/sec] (mean)`` serta yang dibutuhkan adalah sebagai berikut 
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/6a893591-aeac-4976-951a-189771340277)
+
+## Soal 8
+> Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut: 1. Nama Algoritma Load Balancer; 2. Report hasil testing pada Apache Benchmark; 3.Grafik request per second untuk masing masing algoritma; 4. Analisis
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Selebihnya untuk konfigurasinya sama dengan [Soal 7](#Soal-7)
+
+Untuk laporan ``grimoire`` nya kami membuatnya di google.docs pada [link](https://docs.google.com/document/d/1mjKvsNKzQ8XagdoAB8i9nLP6MNEwcRq2ucCuLPb50F0/edit?usp=sharing) ini.
+
+### Script
+Jalankan command berikut pada client ``Revolte``
+```sh
+ab -n 200 -c 10 http://www.granz.channel.a09.com/ 
+```
+
+### Result 
+
+**Round Robin**
+![Screenshot (1015)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/24ed0a1b-11a5-4aea-aed2-6ea179e6b477)
+
+**Least-connection**
+![Screenshot (1019)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/eabe0ec0-d215-465d-8096-31473dc7c962)
+
+**IP Hash**
+![Screenshot (1020)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/4f03715c-7da8-470a-87b1-7763c489ec78)
+
+**Generic Hash**
+![Screenshot (1021)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/37b8d309-9917-4275-a441-2ca838fcb6b7)
+
+**Grafik**
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/5551618b-fb27-4028-915d-f5beff5616d3)
+
+## Soal 9
+> Dengan menggunakan algoritma Round Robin, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 100 request dengan 10 request/second, kemudian tambahkan grafiknya pada grimoire. (9)
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah melakukan setup pada node ``Eisen`` sekarang lakukan testing pada load balancer yang telah dibuat sebelumnya. Yang menjadi pembeda adalah kita harus melakukan testing menggunakan ``1 worker``, ``2 worker``, dan ``3 worker``. 
+
+### Script
+Jalankan command berikut pada client ``Revolte``
+```sh
+ab -n 200 -c 10 http://www.granz.channel.a09.com/ 
+```
+
+### Result
+**3 Worker**
+
+![Screenshot (1022)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/a05e2b8f-6a98-4283-9c1a-581a1f7c2811)
+
+> Request per second 303.87 [#/sec] (mean)
+
+**2 Worker**
+![Screenshot (1023)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/9d4dc1ba-9a8a-4203-9ed8-a201e2b488be)
+
+> Request per second 336.77 [#/sec] (mean)
+
+** 1 Worker**
+![Screenshot (1024)](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/bd9eab33-0d57-4244-a544-810e6910823b)
+
+> Request per second 393.40 [#/sec] (mean)
+
+**Grafik**
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/48104721-c2a1-4cd5-860b-f40a8f253a47)
+
+## Soal 10
+> Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/ 
+
+Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah itu, lakukan beberapa konfigurasi sebagai berikut
+
+### Script
+```sh 
+mkdir /etc/nginx/rahasisakita
+htpasswd -c /etc/nginx/rahasisakita/htpasswd netics
+```
+
+Lalu, masukkan passwordnya ``ajka09``
+
+Jika sudah memasukkan ``password`` dan ``re-type password``. Sekarang bisa dicoba dengan menambahkan command berikut pada setup nginx.
+
+```sh
+auth_basic "Restricted Content";
+auth_basic_user_file /etc/nginx/rahasisakita/htpasswd;
+```
+
+### Result
+Jadi, ketika kita mengakses kembali url ``http://www.granz.channel.a09.com/`` akan terdapat unauthorized sebagai berikut 
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/17ef2476-6555-48e8-a216-bf836edc8dfc)
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/c32e683b-3285-4263-be47-c234c3250ffb)
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/ab94c3aa-9ff1-4275-bfc6-b038465af0e4)
+
+**Setelah berhasil Autentikasi**
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/05e43a73-f45e-41a4-bc7c-9755a18da84c)
