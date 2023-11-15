@@ -376,9 +376,9 @@ service bind9 start
 ```
 ### Result
 
-![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/a1d913cc-ca57-4da7-ba7d-ddcbc9a2ddb8)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/f673486a-797f-438b-ba27-8438f20e9ae4)
 
-![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/0687bed4-f1dc-4409-b188-ce4c2c55c13a)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/cb0d99c0-6bf1-46fc-a891-461232d90d75)
 
 ## Soal 2
 >Semua CLIENT harus menggunakan konfigurasi dari DHCP Server. Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80
@@ -501,9 +501,9 @@ Terakhir jangan lupa untuk restart seluruh client agar dapat melakukan leasing I
 
 ### Result
 
-![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/aef2db26-cbfe-4ab8-ab15-2edc200db28e)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/8a3dda7b-9ccc-46fb-a2f1-3d3182763445)
 
-![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/a0bf3231-515a-4458-8066-930b82bde56d)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/8e159176-2123-4e0d-949a-21a8268b7ef7)
 
 
 ## Soal 5
@@ -511,7 +511,7 @@ Terakhir jangan lupa untuk restart seluruh client agar dapat melakukan leasing I
 
 Kita perlu menggunakan bantuan fungsi ``default-lease-time`` dan ``max-lease-team`` dimana satuannya adalah detik.
 
-Karena pada ``switch3`` dapat meminjamkan IP selama ``3 Menit`` dan ``Switch4`` dapat meminjamkan IP selama ``5 Menit``. Sehingga pada ``Switch3`` membutuhkan waktu ``180 s`` dan ``Switch4`` membutuhkan waktu ``300 s`` dan untuk ``max-lease-time`` nya adalah ``96 menit`` dimana akan menjadi ``5760 s``
+Karena pada ``switch3`` dapat meminjamkan IP selama ``3 Menit`` dan ``Switch4`` dapat meminjamkan IP selama ``12 Menit``. Sehingga pada ``Switch3`` membutuhkan waktu ``180 s`` dan ``Switch4`` membutuhkan waktu ``720 s`` dan untuk ``max-lease-time`` nya adalah ``96 menit`` dimana akan menjadi ``5760 s``
  
 Selanjutnya kita perlu menambahkan beberapa konfigurasi baru untuk mengatur leasing time pada switch3 dan switch4 sesuai dengan aturan soal. Kita dapat menjalankan command berikut pada DHCP Server
 
@@ -547,9 +547,9 @@ service isc-dhcp-server restart
 ```
 ### Result
 
-![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/501ff778-5836-4528-a07b-079b3d48d6f9)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/0bda0b30-90fc-449b-ae0d-2fc3ffc03d21)
 
-![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/d69c7a22-2752-4e6b-8539-23d39303ca4d)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92737767/b986b698-af43-47ae-aa7a-516cbb9693d8)
 
 ## Soal 6
 > Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3. (6)
