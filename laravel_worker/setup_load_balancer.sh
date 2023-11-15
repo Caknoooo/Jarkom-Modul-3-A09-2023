@@ -14,7 +14,8 @@ cp /etc/nginx/sites-available/default /etc/nginx/sites-available/laravel-worker
 unlink /etc/nginx/sites-enabled/default
 ln -s /etc/nginx/sites-available/laravel-worker /etc/nginx/sites-enabled/laravel-worker
 
-# Setup LB 
+# No 18
+# Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Granz Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern. (18)
 echo 'upstream worker {
     server 192.173.4.1:8001;
     server 192.173.4.2:8002;
@@ -28,4 +29,8 @@ server {
     location / {
         proxy_pass http://worker;
     }
-} ' > /etc/nginx/sites-available/laravel-worker
+} 
+' > /etc/nginx/sites-available/laravel-worker
+
+service nginx restart
+

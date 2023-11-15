@@ -1216,3 +1216,24 @@ Terdapat error dalam pengiriman sebanyak 100 request. Karena satu worker saja ti
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/f65ac13d-2b36-4e9c-8b71-43ea2d6ea827)
 
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/c58c1181-e387-476b-a0ef-ffdbe5278614)
+
+## Soal 18
+> Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Granz Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern. (18)
+
+### Script
+
+### Result
+
+## Soal 19
+> Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan -> pm.max_children, pm.start_servers, pm.min_spare_servers, pm.max_spare_servers sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.
+
+### Script
+
+### Result
+
+## Soal 20
+> Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second. (20)
+
+### Script
+
+### Result
