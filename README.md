@@ -74,7 +74,7 @@
   - [Result](#result-17)
 
 ## Topologi
-![image](https://github.com/Caknoooo/Jarkom-Modul-2-A09-2023/assets/92671053/6cf86eb3-cc7c-4aca-83c9-f83ed3806652)
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92671053/b7ae49b5-70ff-4520-b0b0-d4f740f09198)
 
 ## Config
 - **Aura (DHCP Relay)**
