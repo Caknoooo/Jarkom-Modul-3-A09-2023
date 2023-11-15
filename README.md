@@ -596,6 +596,42 @@ Jalanin Perintah ``lynx localhost`` pada masing-masing worker dan hasilnya akan 
 Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dahulu. Setelah melakukan konfigurasi diatas, sekarang lakukan konfigurasi ``Load Balancing`` pada node ``Eisen`` sebagai berikut 
 
 ### Script
+Sebelum melakukan setup soal 7. Buka kembali Node ``DNS Server`` dan arahkan ``domain`` tersebut pada ``IP Load Balancer Eisen``
+
+```sh
+echo ';
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     riegel.canyon.a09.com. root.riegel.canyon.a09.com. (
+                        2023111401      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      riegel.canyon.a09.com.
+@       IN      A       192.173.2.2     ; IP LB Eiken
+www     IN      CNAME   riegel.canyon.a09.com.' > /etc/bind/sites/riegel.canyon.a09.com
+
+echo '
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     granz.channel.a09.com. root.granz.channel.a09.com. (
+                        2023111401      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      granz.channel.a09.com.
+@       IN      A       192.173.2.2     ; IP LB Eiken
+www     IN      CNAME   granz.channel.a09.com.' > /etc/bind/sites/granz.channel.a09.com
+```
+
+Lalu kembali ke node ``Eisen`` dan lakukan konfigurasi pada nginx sebagai berikut
+
 ```sh 
 cp /etc/nginx/sites-available/default /etc/nginx/sites-available/lb_php
 
