@@ -1125,3 +1125,92 @@ lynx localhost:[PORT]
 dimana PORT yang ada adalah ``8001`` ``8002`` dan ``8003``. Sesuaikan dengan setup nginx sebelumnya.
 
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/931d4075-3b54-43fc-86d2-e392876d42a9)
+
+
+## Soal 15
+> Granz Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire. Untuk POST /api/auth/register
+
+Untuk mengerjakan soal ini. Diperlukan melakukan testing menggunakan ``Apache Benchmark`` pada salah satu worker saja. Disini kami akan menggunakan worker laravel ``Fern`` yang nantinya akan menjadi worker yang akan ditesting oleh client ``Revolte``. Sebelum dilakukan testing, kami menggunakan bantuan file ``.json`` yang akan digunakan sebagai ``body`` yang akan dikirim pada endpoint ``/api/auth/register`` nantinya sebagai berikut
+
+### Script
+```sh
+echo '
+{
+  "username": "kelompokA09",
+  "password": "passwordA09",
+}' > register.json
+```
+
+Lalu, lakukanlah perintah berikut dari sisis client ``Revolte`` 
+```sh
+ab -n 100 -c 10 -p register.json -T application/json http://192.173.4.1:8001/api/auth/register
+```
+
+### Result
+Terdapat error dalam pengiriman sebanyak 100 request. Dikarenakan pada table ``users`` adalah unique. Dimana data ``username`` yang dimasukkan tidak boleh sama. Sehingga menyebabkan hanya ``1`` request saja yang diproses. ``99`` proses lainnya tidak diproses
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/4f7c6a72-763c-4aed-9d33-3ba40b7ea48e)
+
+Berikut merupakan grafik dan report yang didapat
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/05097fd1-8779-4a3f-8135-15cf48848544)
+
+## Soal 16
+> Granz Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire. Untuk POST /api/auth/login 
+
+Untuk mengerjakan soal ini. Diperlukan melakukan testing menggunakan ``Apache Benchmark`` pada salah satu worker saja. Disini kami akan menggunakan worker laravel ``Fern`` yang nantinya akan menjadi worker yang akan ditesting oleh client ``Revolte``. Sebelum dilakukan testing, kami menggunakan bantuan file ``.json`` yang akan digunakan sebagai ``body`` yang akan dikirim pada endpoint ``/api/auth/login`` nantinya sebagai berikut
+
+### Script
+```sh
+echo '
+{
+  "username": "kelompokA09",
+  "password": "passwordA09",
+}' > login.json
+```
+
+Lalu, lakukanlah perintah berikut dari sisis client ``Revolte`` 
+```sh
+ab -n 100 -c 10 -p login.json -T application/json http://192.173.4.1:8001/api/auth/login
+```
+
+### Result
+Terdapat error dalam pengiriman sebanyak 100 request. Karena satu worker saja tidak kuat untuk mendapatkan request sebanyak itu 100 dalam waktu yang telah diberikan atau dengan kata lain CPU yang diterima tidak sanggup untuk memproses banyaknya request. Sehingga menyebabkan hanya ``63`` request saja yang berhasil di proses sedangkan ``37`` lainnya tidak berhasil di proses
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/3e1664bc-123a-47bd-8318-2eaae62f2d3a)
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/4ee43597-bef3-4c0e-bcb6-0237382a6004)
+
+## Soal 17
+> Granz Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire. Untuk POST /api/auth/register
+
+
+Untuk mengerjakan soal ini. Diperlukan melakukan testing menggunakan ``Apache Benchmark`` pada salah satu worker saja. Disini kami akan menggunakan worker laravel ``Fern`` yang nantinya akan menjadi worker yang akan ditesting oleh client ``Revolte``. Sebelum dilakukan testing. Ada beberapa konfigurasi yang harus disiapkan sebagai berikut 
+
+### Script
+Dapatkan tokennya terlebih dahulu sebelum mengakses endpoint ``/api/me``
+
+```sh
+curl -X POST -H "Content-Type: application/json" -d @login.json http://192.173.4.1:8001/api/auth/login > login_output.txt
+```
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/40a9b98d-c737-4e03-8e95-4d0c0273fda3)
+
+Lalu jalankan perintah berikut untuk melakukan set ``token`` secara global
+
+```sh
+token=$(cat login_output.txt | jq -r '.token')
+```
+
+Setelah itu jalankan perintah berikut untuk melakukan testing
+
+```sh
+ab -n 100 -c 10 -H "Authorization: Bearer $token" http://192.173.4.1:8001/api/me
+```
+
+### Result 
+Terdapat error dalam pengiriman sebanyak 100 request. Karena satu worker saja tidak kuat untuk mendapatkan request sebanyak itu 100 dalam waktu yang telah diberikan atau dengan kata lain CPU yang diterima tidak sanggup untuk memproses banyaknya request. Sehingga menyebabkan hanya ``62`` request saja yang berhasil di proses sedangkan ``38`` lainnya tidak berhasil di proses
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/f65ac13d-2b36-4e9c-8b71-43ea2d6ea827)
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/c58c1181-e387-476b-a0ef-ffdbe5278614)

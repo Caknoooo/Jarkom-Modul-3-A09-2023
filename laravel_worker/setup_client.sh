@@ -7,15 +7,15 @@ apt-get install jq -y
 # POST Register 
 echo '
 {
-  "username": "Kelompok A09",
-  "password": "passworda09",
+  "username": "kelompokA09",
+  "password": "passwordA09",
 }' > register.json
 
 # POST Login
 echo '
 {
-  "username": "Kelompok A09",
-  "password": "passworda09",
+  "username": "kelompokA09",
+  "password": "passwordA09",
 }' > register.json
 
 # Get me
