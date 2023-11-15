@@ -38,27 +38,8 @@ subnet 192.173.4.0 netmask 255.255.255.0 {
 
 # 4
 # Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut (4)
-echo 'subnet 192.173.1.0 netmask 255.255.255.0 {
-}
+netstat -an | grep 67
 
-subnet 192.173.2.0 netmask 255.255.255.0 {
-}
-
-subnet 192.173.3.0 netmask 255.255.255.0 {
-    range 192.173.3.16 192.173.3.32;
-    range 192.173.3.64 192.173.3.80;
-    option routers 192.173.3.0;
-    option broadcast-address 192.173.3.255;
-    option domain-name-servers 192.173.1.2;
-}
-
-subnet 192.173.4.0 netmask 255.255.255.0 {
-    range 192.173.4.12 192.173.4.20;
-    range 192.173.4.160 192.173.4.168;
-    option routers 192.173.4.0;
-    option broadcast-address 192.173.4.255;
-    option domain-name-servers 192.173.1.2;
-} ' > /etc/dhcp/dhcpd.conf
 
 # 5
 # Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit (5)
@@ -118,22 +99,6 @@ host Fern {
     fixed-address 192.173.4.1;
 }' > /etc/dhcp/dhcpd.conf
 
-echo '# Defaults for isc-dhcp-server (sourced by /etc/init.d/isc-dhcp-server)
-
-# Path to dhcpd's config file (default: /etc/dhcp/dhcpd.conf).
-#DHCPDv4_CONF=/etc/dhcp/dhcpd.conf
-#DHCPDv6_CONF=/etc/dhcp/dhcpd6.conf
-
-# Path to dhcpd's PID file (default: /var/run/dhcpd.pid).
-#DHCPDv4_PID=/var/run/dhcpd.pid
-#DHCPDv6_PID=/var/run/dhcpd6.pid
-
-# Additional options to start dhcpd with.
-#       Don't use options -cf or -pf here; use DHCPD_CONF/ DHCPD_PID instead
-#OPTIONS=""
-
-# On what interfaces should the DHCP server (dhcpd) serve DHCP requests?
-#       Separate multiple interfaces with spaces, e.g. "eth0 eth1".
-INTERFACESv4="eth0"' > /etc/default/isc-dhcp-server
+echo 'INTERFACESv4="eth0"' > /etc/default/isc-dhcp-server
 
 service isc-dhcp-server start
