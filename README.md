@@ -727,7 +727,7 @@ Sebelum mengerjakan perlu untuk melakukan [setup](#sebelum-memulai) terlebih dah
 ### Script
 Jalankan command berikut pada client ``Revolte``
 ```sh
-ab -n 200 -c 10 http://www.granz.channel.a09.com/ 
+ab -n 100 -c 10 http://www.granz.channel.a09.com/ 
 ```
 
 ### Result
@@ -906,6 +906,10 @@ Disini kami hanya mengizinkan beberapa ``IP`` saja sesuai dengan ketentual soal 
 
 **IP Allow**
 
+Disini terdapat ``2 cara`` untuk mengimplementasikannya
+
+``Cara 1``
+
 Karena IP yang diberikan random, sekarang kami akan melakukan tambahan allow pada ``IP 192.173.3.19`` pada konfigurasi sebelumnya
 
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/bc177f35-a148-4328-b99e-0f236d984260)
@@ -921,6 +925,25 @@ location / {
     proxy_pass http://worker;
 }
 ```
+
+![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/f792f249-a13a-4891-9850-09471b861447)
+
+``Cara 2``
+
+Gunakan ``fixed address`` pada client ``Revolte`` dimana kita bisa menambahkan konfigurasi berikut pada ``dhcp server``
+
+```sh
+host Revolte {
+    harware ethernet fe:c0:13:f5:1c:02;
+    fixed-address 192.173.3.69;
+}
+```
+
+Lakukan ``stop`` dan ``start`` ulang pada node ``Revolte``
+
+Hasilnya akan seperti ini 
+
+![image](https://github.com/Caknoooo/Jarkom-Modul-3-A09-2023/assets/92671053/21b5cab8-7fb0-4954-a303-503f466779a7)
 
 ![image](https://github.com/Caknoooo/go-gin-clean-template/assets/92671053/f792f249-a13a-4891-9850-09471b861447)
 
@@ -1139,7 +1162,7 @@ Untuk mengerjakan soal ini. Diperlukan melakukan testing menggunakan ``Apache Be
 echo '
 {
   "username": "kelompokA09",
-  "password": "passwordA09",
+  "password": "passwordA09"
 }' > register.json
 ```
 
@@ -1167,7 +1190,7 @@ Untuk mengerjakan soal ini. Diperlukan melakukan testing menggunakan ``Apache Be
 echo '
 {
   "username": "kelompokA09",
-  "password": "passwordA09",
+  "password": "passwordA09"
 }' > login.json
 ```
 
@@ -1185,7 +1208,6 @@ Terdapat error dalam pengiriman sebanyak 100 request. Karena satu worker saja ti
 
 ## Soal 17
 > Granz Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire. Untuk GET /api/me
-
 
 Untuk mengerjakan soal ini. Diperlukan melakukan testing menggunakan ``Apache Benchmark`` pada salah satu worker saja. Disini kami akan menggunakan worker laravel ``Fern`` yang nantinya akan menjadi worker yang akan ditesting oleh client ``Revolte``. Sebelum dilakukan testing. Ada beberapa konfigurasi yang harus disiapkan sebagai berikut 
 
@@ -1232,7 +1254,7 @@ echo 'upstream worker {
 
 server {
     listen 80;
-    server_name granz.channel.a09.com www.granz.channel.a09.com;
+    server_name riegel.canyon.a09.com www.riegel.canyon.a09.com;
 
     location / {
         proxy_pass http://worker;
@@ -1252,7 +1274,7 @@ Hati-hati ``port`` tabrakan dengan ``load balancer`` dari ``php worker``
 Setelah melakukan konfigurasi pada ``load balancer`` pada ``Eisen``. Sekarang waktunya melakukan testing pada client ``Revolte`` dengan menjalankan perintah berikut 
 
 ```sh
-ab -n 100 -c 10 -p login.json -T application/json http://www.granz.channel.a09.com/api/auth/login
+ab -n 100 -c 10 -p login.json -T application/json http://www.riegel.canyon.a09.com/api/auth/login
 ```
 
 akan memperoleh hasil sebagai berikut 
@@ -1414,7 +1436,7 @@ echo 'upstream worker {
 
 server {
     listen 80;
-    server_name granz.channel.a09.com www.granz.channel.a09.com;
+    server_name riegel.canyon.a09.com www.riegel.canyon.a09.com;
 
     location / {
         proxy_pass http://worker;

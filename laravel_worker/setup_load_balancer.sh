@@ -24,7 +24,7 @@ echo 'upstream worker {
 
 server {
     listen 80;
-    server_name granz.channel.a09.com www.granz.channel.a09.com;
+    server_name riegel.canyon.a09.com www.riegel.canyon.a09.com;
 
     location / {
         proxy_pass http://worker;
