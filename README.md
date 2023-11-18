@@ -81,7 +81,7 @@
 ```
 auto eth0
 iface eth0 inet dhcp
-up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.173.0.0/16
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.173.0.0/16
 
 auto eth1
 iface eth1 inet static
