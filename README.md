@@ -265,7 +265,7 @@ setiap node, kita inisiasi pada `.bashrc` menggunakan `nano`
   apt-get install mariadb-client -y
   # Test connection from worker to database
   # mariadb --host=192.173.2.1 --port=3306   --user=kelompoka09 --password=passworda09 dbkelompoka09 -e "SHOW DATABASES;"
-  apt-get install -y lsb-release ca-certificates a   apt-transport-https software-properties-common gnupg2
+  apt-get install -y lsb-release ca-certificates apt-transport-https software-properties-common gnupg2
   curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
   sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
   apt-get update
